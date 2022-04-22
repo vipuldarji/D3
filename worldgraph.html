@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <head>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.2.8/d3.min.js" type="text/JavaScript"></script>
+  </head>
+</head>
+
+<body>
+  <div class="navbar">
+    <a href="Circle.HTML">Circle chart</a>
+    <a href="Barchart.html">Bar chart</a>
+    <a href="pieChart.html">Pie Chart</a>
+    <a class="active" href="worldgraph.html">World Chart</a>
+  </div>
+  <h2>CRUDE OIL PRICES </h2>
+  <h3>Click the Circle to see the price of crude oil of that Country</h3>
+  <div id="viz">
+    <h3 style="text-align: left" class="bottomText"></h3><br>
+    <svg style="width:1350px;height:500px;border:2px black solid;"></svg>
+  </div>
+
+  <div id="controls"></div>
+  <!--FOOTER-->
+  <footer>
+    <div class="bottom_content">
+      <section>
+        <a href="#"><i class="fa fa-facebook"></i></a>
+        <a href="#"><i class="fa fa-instagram"></i></a>
+        <a href="#"><i class="fa fa-twitter"></i></a>
+        <a href="#"><i class="fa fa-telegram"></i></a>
+      </section>
+      <section>
+        <a href="Circle.html">Circle Chart</a>
+        <a href="Barchart.html">Bar Chart</a>
+        <a href="pieChart.html">Pie Chart</a>
+        <a href="worldgraph.html">World Chart</a>
+      </section>
+    </div>
+    <div class="copyright">
+      Copyright © 2022 Vipul Darji - 8741522 - All rights reserved
+    </div>
+  </footer>
+  <script>
+    var PromiseWrapper = (xhr, d) => new Promise(resolve => xhr(d, (p) => resolve(p)));
+
+    Promise
+      .all([
+        PromiseWrapper(d3.json, "data/world.geojson"),
+        PromiseWrapper(d3.csv, "data/crudeoilprice.csv")
+      ])
+      .then(resolve => {
+        createMap(resolve[0], resolve[1]);
+      });
+
+    function createMap(countries, Entity) {
+      var Projection = d3.geoMercator()
+        .scale(120)
+        .translate([250, 250]);
+
+      var geoPath = d3.geoPath().projection(Projection);
+      const colors = ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519c"];
+      d3.select("svg")
+        .selectAll("path")
+        .data(countries.features)
+        .enter()
+        .append("path")
+        .attr("d", geoPath)
+        .attr("class", "countries")
+        .style("fill", "#9393be");
+
+      d3.select("svg")
+        .selectAll("circle")
+        .data(Entity)
+        .enter()
+        .append("circle")
+        .attr("class", "cities")
+        .attr("r", 3)
+        .attr("cx", d => Projection([d.x, d.y])[0])
+        .attr("cy", d => Projection([d.x, d.y])[1])
+        .style("fill", "green")
+        .on("click", function (d) {
+          d3.select(".bottomText")
+            .text(d.Entity + " : " + d.Price + " " + d.Code);
+        })
+        .on("mouseover", function (d) {
+          d3.selectAll("circle")
+            .attr("class", "cities")
+            .attr("r", 10);
+        })
+        .on("mouseout", function (d) {
+          d3.selectAll("circle")
+            .attr("class", "cities")
+            .attr("r", 3);
+        });
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Bar Graph</title>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <a href="Circle.HTML">Circle chart</a>
+        <a class="active" href="Barchart.html">Bar chart</a>
+        <a href="pieChart.html">Pie Chart</a>
+        <a href="worldgraph.html">World Chart</a>
+    </nav>
+    <h2>CRUDE OIL PRICES </h2>
+    <h3>Click the bar to see that day price of crude oil</h3>
+    <div id="vizContainer">
+        <text class="bottomText"></text><br>
+        <svg width="1300" height="500"></svg>
+    </div>
+
+    <!--FOOTER-->
+    <footer>
+        <div class="bottom_content">
+            <section>
+                <a href="#"><i class="fa fa-facebook"></i></a>
+                <a href="#"><i class="fa fa-instagram"></i></a>
+                <a href="#"><i class="fa fa-twitter"></i></a>
+                <a href="#"><i class="fa fa-telegram"></i></a>
+            </section>
+            <section>
+                <a href="Circle.html">Circle Chart</a>
+                <a href="Barchart.html">Bar Chart</a>
+                <a href="pieChart.html">Pie Chart</a>
+                <a href="worldgraph.html">World Chart</a>
+            </section>
+        </div>
+        <div class="copyright">
+            Copyright © 2022 Vipul Darji - 8741522 - All rights reserved
+        </div>
+    </footer>
+    <script>
+        var svg = d3.select("svg"),
+            margin = 205,
+            width = svg.attr("width") - margin,
+            height = svg.attr("height") - margin;
+
+
+        var xScale = d3.scaleBand().range([0, width]).padding(0.5),
+            yScale = d3.scaleLinear().range([height, 0]);
+
+        var g = svg.append("g")
+            .attr("transform", "translate(" + 100 + "," + 100 + ")");
+
+        d3.csv("data/crudeoilprice.csv", function (error, data) {
+            if (error) {
+                throw error;
+            }
+            xScale.domain(data.map(function (d) { return d.Entity; }));
+            yScale.domain([0, 110]);
+
+            g.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(xScale));
+            g.append("g")
+                .call(d3.axisLeft(yScale));
+            g.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .style("fill", "red")
+                .on("click", clickFunction)
+                .attr("x", function (d) { return xScale(d.Entity); })
+                .attr("y", function (d) { return yScale(d.Price); })
+                .attr("width", xScale.bandwidth())
+                .attr("height", function (d) { return height - yScale(d.Price); });
+        });
+
+        function clickFunction(d) {
+            d3.select(".bottomText")
+                .text(d.Entity + " " + "-" + " " + d.Price + " " + d.Code);
+        }
+    </script>
+</body>
+
+</html>
